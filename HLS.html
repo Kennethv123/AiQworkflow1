@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>  
+    <title>Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="Hls.css">
+
+    <!-- VideoJS API-->
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+
+    <!-- Hls API-->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
+    <script src="HLSplayer.js"></script>
+
+</head>
+<body> 
+    <div class="MediaBoxHLS">
+        <!-- labels -->
+        <div id="HLSdemo" style="color: white;">HLS demo</div>
+        <div style="background-color: rgb(51, 51, 51); color: red; width: 3%; text-align: center;">LiVE</div>
+
+        <div class="MainMediaBox" id="MainMediaBox"><div class="LanguageLabel">English</div></div>
+        <div class = "SideMediaBox">
+            <div class="SidePlayer" id = "SidePlayer1"><div class="LanguageLabel">English</div><canvas class="canvas" id = "canvas1"></canvas></div>
+            <div class="SidePlayer" id = "SidePlayer2"><div class="LanguageLabel">Vietnamese</div><canvas class="canvas" id = "canvas2"></canvas></div>
+            <div class="SidePlayer" id = "SidePlayer3"><div class="LanguageLabel">Español</div><canvas class="canvas" id = "canvas3"></canvas></div>
+        </div>
+
+        <div class="PurchaseBox">
+            <button class="Purchase" id="buyButton">BUY</button>
+            <select id="select">
+                <option value="0" data-link="https://buy.stripe.com/test_dR6dSaetea6egeccMO">English</option>
+                <option value="1" data-link="https://buy.stripe.com/test_eVa8xQdpa5PYgec3cf">Vietnamese</option>
+                <option value="2" data-link="https://buy.stripe.com/test_00g15odpadiqbXW288">Español</option>
+            </select>
+        </div>
+        <script> 
+            // sets Main video
+            HLSVideo(document.getElementById("MainMediaBox"), [EnglLink], false); 
+
+            const MainVideo = document.getElementById("vjs_video_3_html5_api");
+
+            // Uses canvas to mirror main video instead of 
+            // loading in 3 different videos for optimization
+            const Canvas1 = document.getElementById("canvas1"); 
+            const Canvas2 = document.getElementById("canvas2"); 
+            const Canvas3 = document.getElementById("canvas3");
+            
+            const cxt1 = Canvas1.getContext('2d');
+            const cxt2 = Canvas2.getContext('2d');
+            const cxt3 = Canvas3.getContext('2d');
+
+            // video syncing
+            function updateCanvas() {
+                cxt1.drawImage(MainVideo, 0,0, Canvas1.width, Canvas1.height);
+                cxt2.drawImage(MainVideo, 0,0, Canvas2.width, Canvas2.height);
+                cxt3.drawImage(MainVideo, 0,0, Canvas3.width, Canvas3.height);
+                requestAnimationFrame(updateCanvas);
+            }
+
+            updateCanvas();
+
+            MainVideo.addEventListener('play', () => {
+                updateCanvas();
+            })
+           
+            // Label syncing
+            const Label = document.getElementsByClassName("LanguageLabel")[0]; 
+
+            
+            //Video Switching by grabbing current window.hls and loading with new source
+            //,,,maybe a bad idea loading new sources instead of cacheing idk how to code lol 
+            document.getElementById("SidePlayer1").addEventListener("click", ()=> {
+                let time = MainVideo.currentTime;
+                window.hls.loadSource(EnglLink.VideoLink);
+                MainVideo.currentTime = time;
+                Label.innerHTML = "English";
+                MainVideo.play();
+            })
+            document.getElementById("SidePlayer2").addEventListener("click", ()=> {
+                let time = MainVideo.currentTime;
+                window.hls.loadSource(VietLink.VideoLink);
+                MainVideo.currentTime = time;
+                Label.innerHTML = "Vietnamese";
+                MainVideo.play();
+            })
+            document.getElementById("SidePlayer3").addEventListener("click", ()=> {
+                let time = MainVideo.currentTime;
+                window.hls.loadSource(SpanLink.VideoLink);
+                MainVideo.currentTime = time;
+                Label.innerHTML = "Spanish";
+                MainVideo.play();
+            })
+        
+            // Buy button -- Mohan Code //
+           
+            const selectElement = document.getElementById('select');
+            const buyButton = document.getElementById('buyButton');
+            const aVideo = document.getElementById('MainMediaBox');
+            let purchaseMade = false;
+
+            aVideo.addEventListener('play', function(event) {
+                if (!purchaseMade) {
+                    event.preventDefault();
+                    aVideo.pause();
+                    alert('You need to buy the language option first.');
+                }
+            });
+
+            buyButton.addEventListener('click', function() {
+                const selectedOption = selectElement.options[selectElement.selectedIndex];
+                const link = selectedOption.dataset.link;
+                purchaseMade = true;
+                window.location.href = link;
+            });
+        </script>
+    </div>
+</body>
+</html>
