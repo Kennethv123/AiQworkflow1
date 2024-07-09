@@ -46,8 +46,6 @@ body {
     height: 80%;
     float: right;
     margin-right: 1%;
-
-    
 }
 
 .SidePlayer {
@@ -188,3 +186,6 @@ display:none;
 #HLSdemo {
     color:white;
 }
+
+/* YOUTUBE --------------------------------------*/
+
